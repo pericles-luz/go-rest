@@ -32,6 +32,7 @@ func (r *Rest) getToken() (*Token, error) {
 	return r.token, nil
 }
 
+// defines a token to be used in the requests
 func (r *Rest) SetToken(token *Token) error {
 	if !token.IsValid() {
 		return errors.New("token is invalid")
@@ -40,18 +41,22 @@ func (r *Rest) SetToken(token *Token) error {
 	return nil
 }
 
+// sets variables used in the requests
 func (r *Rest) SetConfig(key string, value string) {
 	r.config[key] = value
 }
 
+// gets variables used in the requests
 func (r *Rest) GetConfig(key string) string {
 	return r.config[key].(string)
 }
 
+// sets variables used in the requests
 func (r *Rest) GetConfigData() map[string]interface{} {
 	return r.config
 }
 
+// posts request to the given link, using the defined token
 func (r *Rest) Post(payload map[string]interface{}, link string) (*Response, error) {
 	token, err := r.getToken()
 	if err != nil {
@@ -67,6 +72,7 @@ func (r *Rest) Post(payload map[string]interface{}, link string) (*Response, err
 	}, nil
 }
 
+// posts request to the given link, using the defined token and context
 func (r *Rest) PostWithContext(payload map[string]interface{}, link string, ctx context.Context) (*Response, error) {
 	token, err := r.getToken()
 	if err != nil {
@@ -82,6 +88,7 @@ func (r *Rest) PostWithContext(payload map[string]interface{}, link string, ctx 
 	}, nil
 }
 
+// posts request to the given link, using the defined token and specific header
 func (r *Rest) PostWithHeader(payload map[string]interface{}, link string, header map[string]string) (*Response, error) {
 	token, err := r.getToken()
 	if err != nil {
@@ -98,6 +105,7 @@ func (r *Rest) PostWithHeader(payload map[string]interface{}, link string, heade
 	}, nil
 }
 
+// posts request to the given link, without token and specific header
 func (r *Rest) PostWithHeaderNoAuth(payload map[string]interface{}, link string, header map[string]string) (*Response, error) {
 	resp, err := r.getHttp().R().SetBody(payload).SetHeaders(header).Post(link)
 	if err != nil {
@@ -110,6 +118,7 @@ func (r *Rest) PostWithHeaderNoAuth(payload map[string]interface{}, link string,
 	}, nil
 }
 
+// gets request to the given link, using the defined token
 func (r *Rest) Get(payload map[string]interface{}, link string) (*Response, error) {
 	token, err := r.getToken()
 	if err != nil {
@@ -127,6 +136,7 @@ func (r *Rest) Get(payload map[string]interface{}, link string) (*Response, erro
 	}, nil
 }
 
+// gets request to the given link, using the defined token and specific header
 func (r *Rest) GetWithHeader(payload map[string]interface{}, link string, header map[string]string) (*Response, error) {
 	token, err := r.getToken()
 	if err != nil {
@@ -144,6 +154,7 @@ func (r *Rest) GetWithHeader(payload map[string]interface{}, link string, header
 	}, nil
 }
 
+// gets request to the given link, without token and specific header
 func (r *Rest) GetWithHeaderNoAuth(payload map[string]interface{}, link string, header map[string]string) (*Response, error) {
 	data := r.preparePayload(payload)
 	resp, err := r.getHttp().R().SetQueryParams(data).SetHeaders(header).Get(link)
@@ -157,6 +168,7 @@ func (r *Rest) GetWithHeaderNoAuth(payload map[string]interface{}, link string, 
 	}, nil
 }
 
+// deletes request to the given link, using the defined token
 func (r *Rest) Delete(link string) (*Response, error) {
 	token, err := r.getToken()
 	if err != nil {
@@ -191,6 +203,9 @@ func (r *Rest) preparePayload(payload map[string]interface{}) map[string]string 
 	return result
 }
 
+// gets a Rest struct with the given config
+// if InsecureSkipVerify is set to true, the client will skip the verification of the server's certificate
+// chain and host name
 func NewRest(config map[string]interface{}) *Rest {
 	client := resty.New()
 	if config["InsecureSkipVerify"] != nil && config["InsecureSkipVerify"].(bool) {
