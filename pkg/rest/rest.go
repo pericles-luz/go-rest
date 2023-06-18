@@ -17,52 +17,47 @@ type Rest struct {
 	config map[string]interface{}
 }
 
-type Response struct {
-	code int
-	raw  string
+func (r *Rest) getHttp() *resty.Client {
+	return r.http
 }
 
-func (b *Rest) getHttp() *resty.Client {
-	return b.http
-}
-
-func (b *Rest) getToken() (*Token, error) {
-	if b.token == nil {
+func (r *Rest) getToken() (*Token, error) {
+	if r.token == nil {
 		return nil, errors.New("missing authentication token")
 	}
-	if !b.token.IsValid() {
-		b.token = nil
+	if !r.token.IsValid() {
+		r.token = nil
 		return nil, errors.New("invalid authentication token")
 	}
-	return b.token, nil
+	return r.token, nil
 }
 
-func (b *Rest) SetToken(token *Token) error {
+func (r *Rest) SetToken(token *Token) error {
 	if !token.IsValid() {
 		return errors.New("token is invalid")
 	}
-	b.token = token
+	r.token = token
 	return nil
 }
 
-func (b *Rest) SetConfig(key string, value string) {
-	b.config[key] = value
+func (r *Rest) SetConfig(key string, value string) {
+	r.config[key] = value
 }
 
-func (b *Rest) GetConfig(key string) string {
-	return b.config[key].(string)
+func (r *Rest) GetConfig(key string) string {
+	return r.config[key].(string)
 }
 
-func (b *Rest) GetConfigData() map[string]interface{} {
-	return b.config
+func (r *Rest) GetConfigData() map[string]interface{} {
+	return r.config
 }
 
-func (b *Rest) Post(payload map[string]interface{}, link string) (*Response, error) {
-	token, err := b.getToken()
+func (r *Rest) Post(payload map[string]interface{}, link string) (*Response, error) {
+	token, err := r.getToken()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := b.getHttp().R().SetBody(payload).SetAuthToken(token.GetKey()).Post(link)
+	resp, err := r.getHttp().R().SetBody(payload).SetAuthToken(token.GetKey()).Post(link)
 	if err != nil {
 		return nil, err
 	}
@@ -162,12 +157,12 @@ func (r *Rest) GetWithHeaderNoAuth(payload map[string]interface{}, link string, 
 	}, nil
 }
 
-func (b *Rest) Delete(link string) (*Response, error) {
-	token, err := b.getToken()
+func (r *Rest) Delete(link string) (*Response, error) {
+	token, err := r.getToken()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := b.getHttp().R().SetAuthToken(token.GetKey()).Delete(link)
+	resp, err := r.getHttp().R().SetAuthToken(token.GetKey()).Delete(link)
 	if err != nil {
 		return nil, err
 	}
@@ -194,14 +189,6 @@ func (r *Rest) preparePayload(payload map[string]interface{}) map[string]string 
 		}
 	}
 	return result
-}
-
-func (r *Response) GetRaw() string {
-	return r.raw
-}
-
-func (r *Response) GetCode() int {
-	return r.code
 }
 
 func NewRest(config map[string]interface{}) *Rest {
