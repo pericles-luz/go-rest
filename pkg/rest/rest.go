@@ -205,7 +205,6 @@ func (r *Rest) preparePayload(payload map[string]interface{}) map[string]string 
 
 // gets a Rest struct with the given config
 // if InsecureSkipVerify is set to true, the client will skip the verification of the server's certificate
-// chain and host name
 func NewRest(config map[string]interface{}) *Rest {
 	client := resty.New()
 	if config["InsecureSkipVerify"] != nil && config["InsecureSkipVerify"].(bool) {
