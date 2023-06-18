@@ -1,0 +1,35 @@
+name: Checagem prévia
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  GITHUB: yes
+
+jobs:
+
+  verify:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Golang with cache
+      uses: magnetikonline/action-golang-cache@v3
+      with:
+        go-version-file: go.mod
+
+    - name: Verify dependencies
+      run: go mod verify
+
+    - name: Run go vet
+      run: go vet ./...
+
+    - name: Install staticcheck
+      run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+    - name: Run staticcheck
+      run: $(go env GOPATH)/bin/staticcheck ./...
+
+    - name: Run tests
+      run: go test -race -vet=off ./...
