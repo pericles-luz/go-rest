@@ -72,6 +72,22 @@ func (r *Rest) Post(payload map[string]interface{}, link string) (*Response, err
 	}, nil
 }
 
+// posts request to the given link, using the defined token
+func (r *Rest) PostArray(payload []map[string]interface{}, link string) (*Response, error) {
+	token, err := r.getToken()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := r.getHttp().R().SetBody(payload).SetAuthToken(token.GetKey()).Post(link)
+	if err != nil {
+		return nil, err
+	}
+	return &Response{
+		code: resp.StatusCode(),
+		raw:  resp.String(),
+	}, nil
+}
+
 // posts request to the given link, using the defined token and context
 func (r *Rest) PostWithContext(payload map[string]interface{}, link string, ctx context.Context) (*Response, error) {
 	token, err := r.getToken()
